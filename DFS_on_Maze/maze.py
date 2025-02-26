@@ -57,7 +57,6 @@ class Cell:
             (dy == -1 and not self.walls["bottom"] and not other.walls["top"])
         )
 
-
 def remove_walls(current, next):
     dx = current.x - next.x
     if dx == 1:

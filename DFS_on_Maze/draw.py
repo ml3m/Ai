@@ -1,16 +1,7 @@
 import pygame
-
-from colors import BLACK, GREEN, ORANGE, WHITE, GRAY, LIGHT_GREEN
+from colors import BLACK, GREEN, ORANGE, WHITE, GRAY, LIGHT_GREEN, LIGHT_YELLOW
 from config import MAZE_LINE_WIDTH, TILE_SIZE
 
-#    ╔══════════════════════════════════════════════════════════════════════╗
-#    ║    defines the arrow that represents the direction of the path.      ║
-#    ╚══════════════════════════════════════════════════════════════════════╝
-#    ╔══════════════════════════════════════════════════════════════════════╗
-#    ║  renders the maze on screen by drawing its walls and, if provided,   ║
-#    ║   highlighting explored cells and the solution path                  ║
-#    ║  (with arrows from the function above)                               ║
-#    ╚══════════════════════════════════════════════════════════════════════╝
 #    ╔══════════════════════════════════════════════════════════════════════╗
 #    ║    draw_element(screen, type {arrow, cell, walls}, *args, **kwargs)  ║
 #    ║    handles all types.                                                ║
@@ -22,6 +13,9 @@ def draw_element(screen, element_type, *args, **kwargs):
         center_x = x * TILE_SIZE + TILE_SIZE // 2
         center_y = y * TILE_SIZE + TILE_SIZE // 2
         size = TILE_SIZE // 5
+#    ╔══════════════════════════════════════════════════════════════════════╗
+#    ║    defines the arrow that represents the direction of the path.      ║
+#    ╚══════════════════════════════════════════════════════════════════════╝
         offsets = {
             "up": [(0, -size), (-size // 1.5, size), (size // 1.5, size)],
             "down": [(0, size), (-size // 1.5, -size), (size // 1.5, -size)],
@@ -51,13 +45,17 @@ def draw_element(screen, element_type, *args, **kwargs):
         if cell.walls.get("left"):
             pygame.draw.line(screen, BLACK, (x, y + TILE_SIZE), (x, y), MAZE_LINE_WIDTH)
 
+#    ╔══════════════════════════════════════════════════════════════════════╗
+#    ║  renders the maze on screen by drawing its walls and, if provided,   ║
+#    ║   highlighting explored cells and the solution path                  ║
+#    ║  (with arrows from the function above)                               ║
+#    ╚══════════════════════════════════════════════════════════════════════╝
+
 def draw_maze(screen, grid_cells, cols, rows, explored=None, path=None, failed=False):
     screen.fill(LIGHT_GREEN)
 
     # Draw explored cells
-    if explored:
-        for x, y in explored:
-            draw_element(screen, "cell", x, y, GRAY)
+    [draw_element(screen, "cell", x, y, LIGHT_YELLOW) for x, y in (explored if explored else [])]
 
     # Draw path
     if path:
@@ -77,5 +75,4 @@ def draw_maze(screen, grid_cells, cols, rows, explored=None, path=None, failed=F
             draw_element(screen, "arrow", x, y, direction)
 
     # Draw walls
-    for cell in grid_cells:
-        draw_element(screen, "walls", cell)
+    [draw_element(screen, "walls", cell) for cell in grid_cells]
