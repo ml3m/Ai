@@ -1,10 +1,16 @@
 from random import choice
 
+#    ╔══════════════════════════════════════════════════════════════════════╗
+#    ║  Defines a maze cell with walls, visited status, and neighbor        ║
+#    ║  checking; provides wall removal and DFS-based maze generation for   ║
+#    ║  constructing a perfect labyrinth.                                   ║
+#    ╚══════════════════════════════════════════════════════════════════════╝
+
 class Cell:
     def __init__(self, x, y, cols, rows):
         self.x, self.y = x, y
         self.cols, self.rows = cols, rows
-        self.walls = {'top': True, 'right': True, 'bottom': True, 'left': True}
+        self.walls = {"top": True, "right": True, "bottom": True, "left": True}
         self.visited = False
 
     def check_cell(self, x, y, grid_cells):
@@ -31,48 +37,48 @@ class Cell:
     # retrieve  neighbors
     def get_neighbors(self, grid_cells):
         neighbors = []
-        if not self.walls['top']:
+        if not self.walls["top"]:
             neighbors.append(self.check_cell(self.x, self.y - 1, grid_cells))
-        if not self.walls['right']:
+        if not self.walls["right"]:
             neighbors.append(self.check_cell(self.x + 1, self.y, grid_cells))
-        if not self.walls['bottom']:
+        if not self.walls["bottom"]:
             neighbors.append(self.check_cell(self.x, self.y + 1, grid_cells))
-        if not self.walls['left']:
+        if not self.walls["left"]:
             neighbors.append(self.check_cell(self.x - 1, self.y, grid_cells))
         return [n for n in neighbors if n]  # Return only valid neighbors
 
     # check for path between 2 cells
     def is_path_between(self, other):
-        dx = self.x - other.x
-        dy = self.y - other.y
-        if dx == 1 and not self.walls['left'] and not other.walls['right']:
-            return True
-        if dx == -1 and not self.walls['right'] and not other.walls['left']:
-            return True
-        if dy == 1 and not self.walls['top'] and not other.walls['bottom']:
-            return True
-        if dy == -1 and not self.walls['bottom'] and not other.walls['top']:
-            return True
-        return False
+        dx, dy = self.x - other.x, self.y - other.y
+        return (
+            (dx == 1 and not self.walls["left"] and not other.walls["right"]) or
+            (dx == -1 and not self.walls["right"] and not other.walls["left"]) or
+            (dy == 1 and not self.walls["top"] and not other.walls["bottom"]) or
+            (dy == -1 and not self.walls["bottom"] and not other.walls["top"])
+        )
+
 
 def remove_walls(current, next):
     dx = current.x - next.x
     if dx == 1:
-        current.walls['left'] = False
-        next.walls['right'] = False
+        current.walls["left"] = False
+        next.walls["right"] = False
     elif dx == -1:
-        current.walls['right'] = False
-        next.walls['left'] = False
+        current.walls["right"] = False
+        next.walls["left"] = False
     dy = current.y - next.y
     if dy == 1:
-        current.walls['top'] = False
-        next.walls['bottom'] = False
+        current.walls["top"] = False
+        next.walls["bottom"] = False
     elif dy == -1:
-        current.walls['bottom'] = False
-        next.walls['top'] = False
+        current.walls["bottom"] = False
+        next.walls["top"] = False
+
 
 def generate_maze(cols, rows):
-    grid_cells = [Cell(col, row, cols, rows) for row in range(rows) for col in range(cols)]
+    grid_cells = [
+        Cell(col, row, cols, rows) for row in range(rows) for col in range(cols)
+    ]
     current_cell = grid_cells[0]
     array = []
     break_count = 1
