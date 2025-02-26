@@ -75,9 +75,7 @@ def remove_walls(current, next):
 
 
 def generate_maze(cols, rows):
-    grid_cells = [
-        Cell(col, row, cols, rows) for row in range(rows) for col in range(cols)
-    ]
+    grid_cells = [ Cell(col, row, cols, rows) for row in range(rows) for col in range(cols)]
     current_cell = grid_cells[0]
     array = []
     break_count = 1

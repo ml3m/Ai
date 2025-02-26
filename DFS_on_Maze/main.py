@@ -69,9 +69,6 @@ def main():
 
             total_cells = cols * rows
             maze_coverage = (len(explored_cells) / total_cells) * 100
-#      ╔══════════════════════╗
-#      ║        main()        ║
-#      ╚══════════════════════╝
 
             print("\n╔════════════════════════════════════╗")
             print("║        Statistics for this run     ║")

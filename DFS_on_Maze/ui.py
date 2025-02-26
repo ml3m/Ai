@@ -1,5 +1,5 @@
 import pygame
-from colors import BLACK, BLUE, GRAY, GREEN, WHITE, LIGHT_GREEN
+from colors import BLACK, BLUE, GRAY, GREEN, WHITE
 from config import DEFAULT_HEIGHT, DEFAULT_WIDTH, FPS, TILE_SIZE
 
 #      ╔═════════════════════════════════════════════════════╗

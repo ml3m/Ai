@@ -1,11 +1,18 @@
 import pygame
-from colors import BLACK, GREEN, ORANGE, WHITE, GRAY, LIGHT_GREEN, LIGHT_YELLOW
+from colors import BLACK, GREEN, ORANGE, WHITE, GRAY, L_GREEN, D_YELLOW, L_GRAY
 from config import MAZE_LINE_WIDTH, TILE_SIZE
 
 #    ╔══════════════════════════════════════════════════════════════════════╗
 #    ║    draw_element(screen, type {arrow, cell, walls}, *args, **kwargs)  ║
 #    ║    handles all types.                                                ║
 #    ╚══════════════════════════════════════════════════════════════════════╝
+
+def draw_grid(surface, cols, rows):
+    """Draws a light gray grid on the screen."""
+    for x in range(cols):
+        for y in range(rows):
+            rect = (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+            pygame.draw.rect(surface, L_GRAY, rect, 1)  # Draw the rectangle outline
 
 def draw_element(screen, element_type, *args, **kwargs):
     if element_type == "arrow":
@@ -52,10 +59,13 @@ def draw_element(screen, element_type, *args, **kwargs):
 #    ╚══════════════════════════════════════════════════════════════════════╝
 
 def draw_maze(screen, grid_cells, cols, rows, explored=None, path=None, failed=False):
-    screen.fill(LIGHT_GREEN)
+    screen.fill(L_GREEN)
+
+    # Draw the grid
+    draw_grid(screen, cols, rows)
 
     # Draw explored cells
-    [draw_element(screen, "cell", x, y, LIGHT_YELLOW) for x, y in (explored if explored else [])]
+    [draw_element(screen, "cell", x, y, D_YELLOW) for x, y in (explored if explored else [])]
 
     # Draw path
     if path:
