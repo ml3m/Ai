@@ -4,8 +4,7 @@ import pygame
 from colors import BLACK, GRAY
 from config import DEFAULT_HEIGHT, DEFAULT_WIDTH, FPS, SOLVING_SPEED
 from draw import draw_maze
-from maze import generate_maze
-from solver import run_dfs
+from maze import Maze
 from ui import get_maze_dimensions, setup_display
 
 #      ╔══════════════════════╗
@@ -24,19 +23,13 @@ def main():
         return
 
     screen = setup_display(cols, rows)
-    grid_cells = generate_maze(cols, rows)
-    explored_cells = set()
-    correct_path = []
-    start = (0, 0)
-    goal = (cols - 1, rows - 1)
+    maze = Maze(cols, rows)
     clock_main = pygame.time.Clock()
     running = True
     solve_maze = False
     dfs_step = False
 
-    stats = {}
-
-    draw_maze(screen, grid_cells, cols, rows)
+    draw_maze(screen, maze.grid_cells, cols, rows)
     pygame.display.flip()
 
     while running:
@@ -52,41 +45,35 @@ def main():
                     SOLVING_SPEED = min(500, SOLVING_SPEED + 5)
 
         if solve_maze and not dfs_step:
-            attempted_path, found_solution = run_dfs(
-                grid_cells,
-                start,
-                goal,
-                cols,
-                explored_cells,
+            attempted_path, found_solution = maze.run_dfs(
                 screen,
                 draw_maze,
                 clock_main,
-                stats,
                 SOLVING_SPEED,
             )
-            correct_path = attempted_path
+            maze.correct_path = attempted_path
             dfs_step = True
 
             total_cells = cols * rows
-            maze_coverage = (len(explored_cells) / total_cells) * 100
+            maze_coverage = (len(maze.explored_cells) / total_cells) * 100
 
             print("\n╔════════════════════════════════════╗")
             print("║        Statistics for this run     ║")
             print("╚════════════════════════════════════╝\n")
             print(f"Total Maze Cells: {total_cells}")
-            print(f"Nodes Visited: {stats.get('nodes_visited', 0)}")
+            print(f"Nodes Visited: {maze.stats.get('nodes_visited', 0)}")
             print(f"Maze Coverage: {maze_coverage:.2f}%")
-            print(f"Execution Time: {stats.get('end_time', time.time()) - stats.get('start_time', time.time()):.2f} secs")
+            print(f"Execution Time: {maze.stats.get('end_time', time.time()) - maze.stats.get('start_time', time.time()):.2f} secs")
 
         draw_maze(
             screen,
-            grid_cells,
+            maze.grid_cells,
             cols,
             rows,
-            explored_cells,
-            correct_path,
+            maze.explored_cells,
+            maze.correct_path,
             failed=(
-                dfs_step and correct_path and correct_path[-1] != (cols - 1, rows - 1)
+                dfs_step and maze.correct_path and maze.correct_path[-1] != (cols - 1, rows - 1)
             ),
         )
 

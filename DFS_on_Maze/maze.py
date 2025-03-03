@@ -1,9 +1,8 @@
 from random import choice
 
 #    ╔══════════════════════════════════════════════════════════════════════╗
-#    ║  Defines a maze cell with walls, visited status, and neighbor        ║
-#    ║  checking; provides wall removal and DFS-based maze generation for   ║
-#    ║  constructing a perfect labyrinth.                                   ║
+#    ║  Defines a maze with cell management, wall removal, and DFS-based    ║
+#    ║  maze generation for constructing a perfect labyrinth.               ║
 #    ╚══════════════════════════════════════════════════════════════════════╝
 
 class Cell:
@@ -34,7 +33,7 @@ class Cell:
             neighbors.append(left)
         return choice(neighbors) if neighbors else False
 
-    # retrieve  neighbors
+    # retrieve neighbors
     def get_neighbors(self, grid_cells):
         neighbors = []
         if not self.walls["top"]:
@@ -57,39 +56,89 @@ class Cell:
             (dy == -1 and not self.walls["bottom"] and not other.walls["top"])
         )
 
-def remove_walls(current, next):
-    dx = current.x - next.x
-    if dx == 1:
-        current.walls["left"] = False
-        next.walls["right"] = False
-    elif dx == -1:
-        current.walls["right"] = False
-        next.walls["left"] = False
-    dy = current.y - next.y
-    if dy == 1:
-        current.walls["top"] = False
-        next.walls["bottom"] = False
-    elif dy == -1:
-        current.walls["bottom"] = False
-        next.walls["top"] = False
 
+class Maze:
+    def __init__(self, cols, rows):
+        self.cols = cols
+        self.rows = rows
+        self.grid_cells = []
+        self.explored_cells = set()
+        self.correct_path = []
+        self.start = (0, 0)
+        self.goal = (cols - 1, rows - 1)
+        self.stats = {}
+        self.generate_maze()
 
+    def generate_maze(self):
+        """Generate a perfect maze using DFS algorithm"""
+        self.grid_cells = [Cell(col, row, self.cols, self.rows) 
+                           for row in range(self.rows) 
+                           for col in range(self.cols)]
+        current_cell = self.grid_cells[0]
+        array = []
+        break_count = 1
+
+        while break_count != len(self.grid_cells):
+            current_cell.visited = True
+            next_cell = current_cell.check_neighbors(self.grid_cells)
+            if next_cell:
+                next_cell.visited = True
+                break_count += 1
+                array.append(current_cell)
+                self.remove_walls(current_cell, next_cell)
+                current_cell = next_cell
+            elif array:
+                current_cell = array.pop()
+        
+        # Reset the visited status for all cells for future use
+        for cell in self.grid_cells:
+            cell.visited = False
+        
+        return self.grid_cells
+
+    def remove_walls(self, current, next):
+        """Remove walls between adjacent cells to create a path"""
+        dx = current.x - next.x
+        if dx == 1:
+            current.walls["left"] = False
+            next.walls["right"] = False
+        elif dx == -1:
+            current.walls["right"] = False
+            next.walls["left"] = False
+        dy = current.y - next.y
+        if dy == 1:
+            current.walls["top"] = False
+            next.walls["bottom"] = False
+        elif dy == -1:
+            current.walls["bottom"] = False
+            next.walls["top"] = False
+
+    def run_dfs(self, screen, draw_maze, clock, solving_speed):
+        """Moved from solver.py - will serve as a placeholder for the actual implementation"""
+        from solver import run_dfs
+        return run_dfs(
+            self.grid_cells,
+            self.start,
+            self.goal,
+            self.cols,
+            self.explored_cells,
+            screen,
+            draw_maze,
+            clock,
+            self.stats,
+            solving_speed,
+        )
+
+    def reset(self):
+        """Reset the maze for a new run"""
+        self.explored_cells = set()
+        self.correct_path = []
+        self.stats = {}
+
+# Maintain backwards compatibility with existing code
 def generate_maze(cols, rows):
-    grid_cells = [ Cell(col, row, cols, rows) for row in range(rows) for col in range(cols)]
-    current_cell = grid_cells[0]
-    array = []
-    break_count = 1
+    maze = Maze(cols, rows)
+    return maze.grid_cells
 
-    while break_count != len(grid_cells):
-        current_cell.visited = True
-        next_cell = current_cell.check_neighbors(grid_cells)
-        if next_cell:
-            next_cell.visited = True
-            break_count += 1
-            array.append(current_cell)
-            remove_walls(current_cell, next_cell)
-            current_cell = next_cell
-        elif array:
-            current_cell = array.pop()
-
-    return grid_cells
+def remove_walls(current, next):
+    Maze(1, 1).remove_walls(current, next)

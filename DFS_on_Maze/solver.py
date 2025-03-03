@@ -97,3 +97,6 @@ def run_dfs(
 
     stats["end_time"] = time.time()
     return ([], False)
+
+# This function is kept for compatibility and will be imported back in the Maze class
+# It's redundant but ensures smooth transition to the new architecture
