@@ -7,22 +7,25 @@ from config import MAZE_LINE_WIDTH, TILE_SIZE
 #    ║    handles all types.                                                ║
 #    ╚══════════════════════════════════════════════════════════════════════╝
 
-def draw_grid(surface, cols, rows):
-    """Draws a light gray grid on the screen."""
-    for x in range(cols):
-        for y in range(rows):
-            rect = (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
-            pygame.draw.rect(surface, L_GRAY, rect, 1)  # Draw the rectangle outline
+class Drawing:
+    def __init__(self, screen):
+        self.screen = screen
+        self.tile_size = TILE_SIZE
+        self.line_width = MAZE_LINE_WIDTH
 
-def draw_element(screen, element_type, *args, **kwargs):
-    if element_type == "arrow":
-        x, y, direction = args
-        center_x = x * TILE_SIZE + TILE_SIZE // 2
-        center_y = y * TILE_SIZE + TILE_SIZE // 2
-        size = TILE_SIZE // 5
-#    ╔══════════════════════════════════════════════════════════════════════╗
-#    ║    defines the arrow that represents the direction of the path.      ║
-#    ╚══════════════════════════════════════════════════════════════════════╝
+    def draw_grid(self, cols, rows):
+        """Draws a light gray grid on the screen."""
+        for x in range(cols):
+            for y in range(rows):
+                rect = (x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                pygame.draw.rect(self.screen, L_GRAY, rect, 1)
+
+    def draw_arrow(self, x, y, direction):
+        """Draw an arrow indicating path direction"""
+        center_x = x * self.tile_size + self.tile_size // 2
+        center_y = y * self.tile_size + self.tile_size // 2
+        size = self.tile_size // 5
+
         offsets = {
             "up": [(0, -size), (-size // 1.5, size), (size // 1.5, size)],
             "down": [(0, size), (-size // 1.5, -size), (size // 1.5, -size)],
@@ -30,59 +33,98 @@ def draw_element(screen, element_type, *args, **kwargs):
             "right": [(size, 0), (-size, -size // 1.5), (-size, size // 1.5)],
         }
         points = [(center_x + dx, center_y + dy) for dx, dy in offsets[direction]]
-        pygame.draw.polygon(screen, BLACK, points)
+        pygame.draw.polygon(self.screen, BLACK, points)
 
-    elif element_type == "cell":
-        x, y, color = args
-        pygame.draw.rect(screen, color, (x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
+    def draw_cell(self, x, y, color):
+        """Draw a colored cell at the specified position"""
+        pygame.draw.rect(
+            self.screen, 
+            color, 
+            (x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+        )
 
-    elif element_type == "walls":
-        cell = args[0]
-        x, y = cell.x * TILE_SIZE, cell.y * TILE_SIZE
+    def draw_walls(self, cell):
+        """Draw the walls of a cell"""
+        x, y = cell.x * self.tile_size, cell.y * self.tile_size
         if cell.walls.get("top"):
-            pygame.draw.line(screen, BLACK, (x, y), (x + TILE_SIZE, y), MAZE_LINE_WIDTH)
+            pygame.draw.line(
+                self.screen, 
+                BLACK, 
+                (x, y), 
+                (x + self.tile_size, y), 
+                self.line_width
+            )
         if cell.walls.get("right"):
             pygame.draw.line(
-                screen, BLACK, (x + TILE_SIZE, y), (x + TILE_SIZE, y + TILE_SIZE), MAZE_LINE_WIDTH
+                self.screen, 
+                BLACK, 
+                (x + self.tile_size, y), 
+                (x + self.tile_size, y + self.tile_size), 
+                self.line_width
             )
         if cell.walls.get("bottom"):
             pygame.draw.line(
-                screen, BLACK, (x + TILE_SIZE, y + TILE_SIZE), (x, y + TILE_SIZE), MAZE_LINE_WIDTH
+                self.screen, 
+                BLACK, 
+                (x + self.tile_size, y + self.tile_size), 
+                (x, y + self.tile_size), 
+                self.line_width
             )
         if cell.walls.get("left"):
-            pygame.draw.line(screen, BLACK, (x, y + TILE_SIZE), (x, y), MAZE_LINE_WIDTH)
-
-#    ╔══════════════════════════════════════════════════════════════════════╗
-#    ║  renders the maze on screen by drawing its walls and, if provided,   ║
-#    ║   highlighting explored cells and the solution path                  ║
-#    ║  (with arrows from the function above)                               ║
-#    ╚══════════════════════════════════════════════════════════════════════╝
-
-def draw_maze(screen, grid_cells, cols, rows, explored=None, path=None, failed=False):
-    screen.fill(L_GREEN)
-
-    # Draw the grid
-    draw_grid(screen, cols, rows)
-
-    # Draw explored cells
-    [draw_element(screen, "cell", x, y, D_YELLOW) for x, y in (explored if explored else [])]
-
-    # Draw path
-    if path:
-        path_color = GREEN if not failed else ORANGE
-        for x, y in path:
-            draw_element(screen, "cell", x, y, path_color)
-
-        # Draw arrows along the path
-        for (x, y), (next_x, next_y) in zip(path, path[1:]):
-            direction = (
-                "right" if next_x > x else
-                "left" if next_x < x else
-                "down" if next_y > y else
-                "up"
+            pygame.draw.line(
+                self.screen, 
+                BLACK, 
+                (x, y + self.tile_size), 
+                (x, y), 
+                self.line_width
             )
 
-            draw_element(screen, "arrow", x, y, direction)
+    def draw_maze(self, grid_cells, cols, rows, explored=None, path=None, failed=False):
+        """Draw the complete maze with all its components"""
+        self.screen.fill(L_GREEN)
 
-    # Draw walls
-    [draw_element(screen, "walls", cell) for cell in grid_cells]
+        # Draw the grid
+        self.draw_grid(cols, rows)
+
+        # Draw explored cells
+        if explored:
+            for x, y in explored:
+                self.draw_cell(x, y, D_YELLOW)
+
+        # Draw path
+        if path:
+            path_color = GREEN if not failed else ORANGE
+            for x, y in path:
+                self.draw_cell(x, y, path_color)
+
+            # Draw arrows along the path
+            for (x, y), (next_x, next_y) in zip(path, path[1:]):
+                direction = (
+                    "right" if next_x > x else
+                    "left" if next_x < x else
+                    "down" if next_y > y else
+                    "up"
+                )
+                self.draw_arrow(x, y, direction)
+
+        # Draw walls
+        for cell in grid_cells:
+            self.draw_walls(cell)
+
+    def draw_info_text(self, text, font_size=24):
+        """Draw centered info text with background"""
+        info_font = pygame.font.SysFont("Arial", font_size)
+        info_text = info_font.render(text, True, BLACK)
+        info_rect = info_text.get_rect(
+            center=(self.screen.get_width() // 2, self.screen.get_height() // 2)
+        )
+        padding = 10
+        info_box = info_rect.inflate(padding * 2, padding * 2)
+        pygame.draw.rect(self.screen, GRAY, info_box)
+        pygame.draw.rect(self.screen, BLACK, info_box, 2)
+        self.screen.blit(info_text, info_rect)
+
+# For backwards compatibility
+def draw_maze(screen, grid_cells, cols, rows, explored=None, path=None, failed=False):
+    drawer = Drawing(screen)
+    drawer.draw_maze(grid_cells, cols, rows, explored, path, failed)

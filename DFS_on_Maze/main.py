@@ -3,7 +3,7 @@ import pygame
 
 from colors import BLACK, GRAY
 from config import DEFAULT_HEIGHT, DEFAULT_WIDTH, FPS, SOLVING_SPEED
-from draw import draw_maze
+from draw import Drawing
 from maze import Maze
 from ui import get_maze_dimensions, setup_display
 
@@ -23,13 +23,14 @@ def main():
         return
 
     screen = setup_display(cols, rows)
+    drawer = Drawing(screen)
     maze = Maze(cols, rows)
     clock_main = pygame.time.Clock()
     running = True
     solve_maze = False
     dfs_step = False
 
-    draw_maze(screen, maze.grid_cells, cols, rows)
+    drawer.draw_maze(maze.grid_cells, cols, rows)
     pygame.display.flip()
 
     while running:
@@ -47,7 +48,7 @@ def main():
         if solve_maze and not dfs_step:
             attempted_path, found_solution = maze.run_dfs(
                 screen,
-                draw_maze,
+                drawer.draw_maze,
                 clock_main,
                 SOLVING_SPEED,
             )
@@ -65,8 +66,7 @@ def main():
             print(f"Maze Coverage: {maze_coverage:.2f}%")
             print(f"Execution Time: {maze.stats.get('end_time', time.time()) - maze.stats.get('start_time', time.time()):.2f} secs")
 
-        draw_maze(
-            screen,
+        drawer.draw_maze(
             maze.grid_cells,
             cols,
             rows,
@@ -78,16 +78,7 @@ def main():
         )
 
         if not solve_maze:
-            info_font = pygame.font.SysFont("Arial", 24)
-            info_text = info_font.render("Press Return to Solve the Maze", True, BLACK)
-            info_rect = info_text.get_rect(
-                center=(screen.get_width() // 2, screen.get_height() // 2)
-            )
-            padding = 10
-            info_box = info_rect.inflate(padding * 2, padding * 2)
-            pygame.draw.rect(screen, GRAY, info_box)
-            pygame.draw.rect(screen, BLACK, info_box, 2)
-            screen.blit(info_text, info_rect)
+            drawer.draw_info_text("Press Return to Solve the Maze")
 
         pygame.display.flip()
         clock_main.tick(FPS)

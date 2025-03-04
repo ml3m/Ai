@@ -1,5 +1,6 @@
 import time
 import pygame
+from draw import Drawing
 
 #    ╔═════════════════════════════════════════════════════════════════════════╗
 #    ║                             run_dfs()                                   ║
@@ -18,7 +19,7 @@ def run_dfs(
     cols,
     explored_cells,
     screen,
-    draw_maze,
+    draw_maze_func,
     clock,
     stats,
     SOLVING_SPEED,
@@ -53,13 +54,12 @@ def run_dfs(
         explored_cells.add(current_coords)
 
         pygame.time.delay(SOLVING_SPEED)
-        draw_maze(screen, grid_cells, cols, len(grid_cells) // cols, explored_cells)
+        draw_maze_func(grid_cells, cols, len(grid_cells) // cols, explored_cells)
         pygame.display.flip()
 
         if current == goal_cell:
             final_path = current_path + [current_coords]
-            draw_maze(
-                screen,
+            draw_maze_func(
                 grid_cells,
                 cols,
                 len(grid_cells) // cols,
@@ -78,8 +78,7 @@ def run_dfs(
         if not unvisited_neighbors:
             stats["dead_ends"] += 1
             dead_end_path = current_path + [current_coords]
-            draw_maze(
-                screen,
+            draw_maze_func(
                 grid_cells,
                 cols,
                 len(grid_cells) // cols,
